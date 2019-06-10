@@ -1,16 +1,16 @@
 <?php
 
 # a selection of HandBrake v.1.2.2 presets
-define('PRESET_GENERAL_VERYFAST_1080', 'Very Fast 1080p30');
-define('PRESET_GENERAL_VERYFAST_720', 'Very Fast 720p30');
-define('PRESET_GENERAL_VERYFAST_480', 'Very Fast 480p30');
-define('PRESET_GENERAL_FAST_1080', 'Fast 1080p30');
-define('PRESET_GENERAL_FAST_720', 'Fast 720p30');
-define('PRESET_GENERAL_FAST_480', 'Fast 480p30');
-define('PRESET_GENERAL_HQ_1080', 'HQ 1080p30 Surround');
-define('PRESET_GENERAL_HQ_720', 'HQ 720p30 Surround');
-define('PRESET_GENERAL_SUPERHQ_1080', 'Super HQ 1080p30 Surround');
-define('PRESET_GENERAL_SUPERHQ_720', 'Super HQ 720p30 Surround');
+define('PRESET_GENERAL_VERYFAST_1080',	'Very Fast 1080p30');
+define('PRESET_GENERAL_VERYFAST_720',	'Very Fast 720p30');
+define('PRESET_GENERAL_VERYFAST_480',	'Very Fast 480p30');
+define('PRESET_GENERAL_FAST_1080',		'Fast 1080p30');
+define('PRESET_GENERAL_FAST_720',		'Fast 720p30');
+define('PRESET_GENERAL_FAST_480',		'Fast 480p30');
+define('PRESET_GENERAL_HQ_1080',		'HQ 1080p30 Surround');
+define('PRESET_GENERAL_HQ_720',			'HQ 720p30 Surround');
+define('PRESET_GENERAL_SUPERHQ_1080',	'Super HQ 1080p30 Surround');
+define('PRESET_GENERAL_SUPERHQ_720',	'Super HQ 720p30 Surround');
 
 define('PROCESS_FILES_MAX', 5); // max number of files that will be accepted for processing in a single run
 

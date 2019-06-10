@@ -6,8 +6,8 @@
  * @see https://www.makemkv.com/developers/usage.txt
  */
 
+define('DS', DIRECTORY_SEPARATOR);
 define('DEVICE_INFO_DRIVE', 'DRV:');
-define('DEVICE_INFO_MESSAGE', 'MSG:');
 
 /* makemkv-oss-1.14.3/makemkvgui/inc/lgpl/apdefs.h
 static const unsigned int AP_DriveStateNoDrive=256;
@@ -25,23 +25,19 @@ define('DRIVESTATE_INSERTED',   2);
 define('DRIVESTATE_LOADING',    3);
 
 /* makemkv-oss-1.14.3/makemkvgui/inc/lgpl/apdefs.h
+ * note: this list appears to be incomplete
 static const unsigned int AP_DskFsFlagDvdFilesPresent=1;
 static const unsigned int AP_DskFsFlagHdvdFilesPresent=2;
 static const unsigned int AP_DskFsFlagBlurayFilesPresent=4;
 static const unsigned int AP_DskFsFlagAacsFilesPresent=8;
 static const unsigned int AP_DskFsFlagBdsvmFilesPresent=16;
  */
-// note: this list appears to be incomplete
 define('DISC_FS_FLAG_DVD',       1);
 define('DISC_FS_FLAG_HDVD',      2);
 define('DISC_FS_FLAG_BLURAY',    4);
 define('DISC_FS_FLAG_AACS',      8);
-define('DISC_FS_FLAG_BDRE',     12); // ??
+define('DISC_FS_FLAG_BDRE',     12);
 define('DISC_FS_FLAG_BDSVM',    16);
-
-define('DS', DIRECTORY_SEPARATOR);
-
-// *********************************************************************************************************************
 
 echo '*** Starting RIPP-X Extractor', PHP_EOL;
 
@@ -131,7 +127,7 @@ function get_devices()
          * per https://www.makemkv.com/developers/usage.txt
          * Drive scan message format
          * DRV:index,visible,enabled,flags,drive name,disc name
-         * :D jklol
+         * jk;lol
          * DRV:index,state,nooneknows,flag,drive name,disc name,drive source
          */
         list($index, $drive_state, , $fs_flag, $name, $label, $drive) = $device_info;
