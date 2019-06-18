@@ -38,8 +38,11 @@ class MkvEncode
         $filename = $filename_parts[count($filename_parts)-1];
         $dirname = $filename_parts[count($filename_parts)-2];
         $output_dir = RIPX_RIP_OUTPUT_DIR . DS . $dirname;
-        if (!is_dir($output_dir) && !mkdir($output_dir)) {
-            throw new CliException("Could not initialize output directory: $output_dir", 8);
+        if (!is_dir($output_dir)) {
+            if (!mkdir($output_dir)) {
+                throw new CliException("Could not initialize output directory: $output_dir", 8);
+            }
+            chmod($output_dir, 0775);
         }
         $output_filename = $output_dir . DS . strstr($filename, '.mkv', true) . '.mp4';
 
