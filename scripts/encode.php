@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-require_once('../config/bootstrap.php');
-require_once('../lib/MkvEncode.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'bootstrap.php');
+require_once(PROJECT_DIR . 'lib' . DS . 'MkvEncode.php');
 
 $exit_code = 0;
 

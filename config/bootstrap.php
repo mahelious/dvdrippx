@@ -1,10 +1,10 @@
 <?php
 
-
-require_once('../lib/Exceptions.php');
-
-// quality of life improvement
+// quality of life improvements
 define('DS', DIRECTORY_SEPARATOR);
+define('PROJECT_DIR', realpath(__DIR__ . DS . '..') . DS);
+
+require_once(PROJECT_DIR . 'lib' . DS . 'Exceptions.php');
 
 // initialize project settings
 $settings = @parse_ini_file('settings.ini');
