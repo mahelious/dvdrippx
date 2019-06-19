@@ -12,9 +12,9 @@ foreach ($settings as $label => $value) {
     defined($label) || define($label, $value);
 }
 
-function verify_path(string $path)
+function verify_path(string $raw_path)
 {
-    $path = realpath($path);
+    $path = realpath($raw_path);
     if (!is_dir(RIPX_MKV_OUTPUT_DIR) && !mkdir(RIPX_MKV_OUTPUT_DIR, 0775, true)) {
         throw new CliException('Could not initialize directory ' . RIPX_MKV_OUTPUT_DIR, 2);
     }

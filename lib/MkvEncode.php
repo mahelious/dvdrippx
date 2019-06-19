@@ -34,23 +34,13 @@ class MkvEncode
             return null;
         }
 
-        $filename_parts = explode(DS, $this->mkv_file);
-        $filename = $filename_parts[count($filename_parts)-1];
-        $dirname = $filename_parts[count($filename_parts)-2];
-        $output_dir = RIPX_RIP_OUTPUT_DIR . DS . $dirname;
-        if (!is_dir($output_dir)) {
-            if (!mkdir($output_dir)) {
-                throw new CliException("Could not initialize output directory: $output_dir", 8);
-            }
-            chmod($output_dir, 0775);
-        }
-        $output_filename = $output_dir . DS . strstr($filename, '.mkv', true) . '.mp4';
+        $output_file = self::getMp4Output($this->mkv_file);
 
         // use HandBrakeCLI to perform encoding
-        $encode_cmd = sprintf('HandBrakeCLI -Z "%s" -i "%s" -o "%s"', $encode_preset, $this->mkv_file, $output_filename);
+        $encode_cmd = sprintf('HandBrakeCLI -Z "%s" -i "%s" -o "%s" 2>/dev/null', $encode_preset, $this->mkv_file, $output_file);
         @exec($encode_cmd, $convert_out, $convert_result);
         if ($convert_result !== 0) {
-            echo "Failed to encode $output_filename, restoring...", PHP_EOL;
+            echo "Failed to encode $output_file, restoring...", PHP_EOL;
             $this->undoProcessingLock();
             echo "{$this->mkv_file} was restored", PHP_EOL;
             return null;
@@ -58,7 +48,7 @@ class MkvEncode
 
         $this->cleanupProcessingLock();
 
-        return $output_filename;
+        return $output_file;
     }
 
     private function addProcessingLock()
@@ -138,5 +128,26 @@ class MkvEncode
             }
         }
         return $mkv_files;
+    }
+
+    private static function getMp4Output($input_mkv_file)
+    {
+        $output_dir = self::getOutput($input_mkv_file);
+        $output_file = strstr(basename($input_mkv_file), '.mkv', true) . '.mp4';
+        return $output_dir . DS . $output_file;
+    }
+
+    private static function getOutput($input_file)
+    {
+        $filename_parts = explode(DS, $input_file);
+        $output_dir = RIPX_RIP_OUTPUT_DIR . DS . $filename_parts[count($filename_parts)-2];
+        if (!is_dir($output_dir)) {
+            if (!mkdir($output_dir)) {
+                throw new CliException("Could not initialize output directory: $output_dir", 8);
+            }
+            // change permissions independently to avoid having to fuss with the umask
+            chmod($output_dir, 0775);
+        }
+        return $output_dir;
     }
 }
