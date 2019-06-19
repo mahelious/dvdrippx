@@ -34,7 +34,7 @@ class MkvEncode
             return null;
         }
 
-        $output_file = self::getMp4Output($this->mkv_file);
+        $output_file = self::getMp4Output($this->lock_file);
 
         // use HandBrakeCLI to perform encoding
         $encode_cmd = sprintf('HandBrakeCLI -Z "%s" -i "%s" -o "%s" 2>/dev/null', $encode_preset, $this->mkv_file, $output_file);
