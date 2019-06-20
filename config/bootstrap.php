@@ -12,14 +12,13 @@ foreach ($settings as $label => $value) {
     defined($label) || define($label, $value);
 }
 
-function verify_path(string $raw_path)
+function verify_path(string $path)
 {
-    $path = realpath($raw_path);
-    if (!is_dir(RIPX_MKV_OUTPUT_DIR) && !mkdir(RIPX_MKV_OUTPUT_DIR, 0775, true)) {
-        throw new CliException('Could not initialize directory ' . RIPX_MKV_OUTPUT_DIR, 2);
+    if (!is_dir($path) && !mkdir($path, 0775, true)) {
+        throw new CliException('Could not initialize directory "' . $path . '"', 2);
     }
     if (!is_writable($path)) {
-        throw new CliException(RIPX_MKV_OUTPUT_DIR . ' is not writable', 2);
+        throw new CliException('"' . $path . '" is not writable', 2);
     }
     return $path;
 }
