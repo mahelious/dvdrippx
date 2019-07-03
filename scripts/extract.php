@@ -2,7 +2,7 @@
 <?php
 
 require_once(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'bootstrap.php');
-require_once(PROJECT_DIR . 'lib' . DS . 'MkvExtract.php');
+require_once(PROJECT_DIR . 'lib' . DS . 'MakeMKV.php');
 
 echo '*** Starting RIPP-X Extractor', PHP_EOL;
 
@@ -12,8 +12,8 @@ $start_time = time();
 
 try {
 	$output_dir = verify_path(RIPX_MKV_OUTPUT_DIR);
-    $extract = new MkvExtract();
-    $extract->to($output_dir);
+    $make_mkv = new MakeMKV();
+    $make_mkv->extract($output_dir);
     // verify results
 	$dirscan = scandir($output_dir);
 	if ($dirscan === false) {

@@ -2,7 +2,7 @@
 <?php
 
 require_once(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'bootstrap.php');
-require_once(PROJECT_DIR . 'lib' . DS . 'MkvEncode.php');
+require_once(PROJECT_DIR . 'lib' . DS . 'Handbrake.php');
 
 $exit_code = 0;
 
@@ -14,7 +14,7 @@ try {
 
     $processed_files = [];
 
-    $mkv_files = MkvEncode::getMkvFiles(RIPX_MKV_OUTPUT_DIR);
+    $mkv_files = Handbrake::getMkvFiles(RIPX_MKV_OUTPUT_DIR);
 
     foreach ($mkv_files as $mkv_file) {
         if (count($processed_files) >= RIPX_ENCODE_FILES_MAX) {
@@ -36,7 +36,7 @@ try {
 }
 
 echo '*** RIPP-X Encoder finished in ', time() - $start_time, ' seconds, ',
-    ($processed_files_count = count($processed_files)) > 0 ? "processed $processed_files_count files." : 'no files found to process',
+    ($files_count = count($processed_files)) > 0 ? "processed $files_count files." : 'no files found to process',
     PHP_EOL;
 
 exit($exit_code);

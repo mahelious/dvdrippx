@@ -37,7 +37,7 @@ define('DISC_FS_FLAG_AACS',      8);
 define('DISC_FS_FLAG_BDRE',     12);
 define('DISC_FS_FLAG_BDSVM',    16);
 
-class MkvExtract
+class MakeMKV
 {
     private $source_device;
 
@@ -56,7 +56,7 @@ class MkvExtract
         $this->source_device = $devices[0];
     }
 
-    public function to($dir_out)
+    public function extract($dir_out)
     {
         $drive_id = $this->source_device['index'];
         $drive_name = $this->source_device['label'];

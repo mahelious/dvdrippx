@@ -12,7 +12,7 @@ define('PRESET_GENERAL_HQ_720',         'HQ 720p30 Surround');
 define('PRESET_GENERAL_SUPERHQ_1080',   'Super HQ 1080p30 Surround');
 define('PRESET_GENERAL_SUPERHQ_720',    'Super HQ 720p30 Surround');
 
-class MkvEncode
+class Handbrake
 {
     private $mkv_file;
     private $lock_file;
@@ -96,7 +96,7 @@ class MkvEncode
      *
      * @param string $mkv_dir
      * @param int $recurse_depth
-     * @return MkvEncode[]
+     * @return Handbrake[]
      */
     public static function getMkvFiles($mkv_dir, $recurse_depth = 0)
     {
