@@ -130,6 +130,11 @@ class Handbrake
         return $mkv_files;
     }
 
+    public static function getProcessingFiles()
+    {
+        return (is_readable(RIPX_PROCESSING_DIR)) ? array_diff(scandir(RIPX_PROCESSING_DIR), ['.', '..']) : [];
+    }
+
     private static function getMp4Output($input_mkv_file)
     {
         $output_dir = self::getOutput($input_mkv_file);

@@ -12,7 +12,7 @@ try {
     echo '*** Starting RIPP-X Encoder at ', date('Y-m-d H:i:s'), PHP_EOL;
     $start_time = time();
 
-    $processed_files = [];
+    $processed_files = Handbrake::getProcessingFiles();
 
     $mkv_files = Handbrake::getMkvFiles(RIPX_MKV_OUTPUT_DIR);
 
