@@ -4,10 +4,10 @@ sudo apt-get update
 sudo apt-get install -y git curl gcc build-essential pkg-config autoconf make cmake automake tar unzip at
 
 # setup output dir structure
-# to be really cool, map a network directory to /usr/ripx/output
-sudo mkdir -p /usr/ripx/mkv && sudo chmod 777 /usr/ripx/mkv
-sudo mkdir -p /usr/ripx/processing && sudo chmod 777 /usr/ripx/processing
-sudo mkdir -p /usr/ripx/output && sudo chmod 777 /usr/ripx/output
+# to be really cool, map a network directory to /opt/dvdrippx/output
+sudo mkdir -p /opt/dvdrippx/mkv && sudo chmod 777 /opt/dvdrippx/mkv
+sudo mkdir -p /opt/dvdrippx/processing && sudo chmod 777 /opt/dvdrippx/processing
+sudo mkdir -p /opt/dvdrippx/output && sudo chmod 777 /opt/dvdrippx/output
 
 # setup logging
 sudo mkdir -p /var/log/dvdrippx
@@ -44,7 +44,7 @@ echo -e "[Service]\nMountFlags=shared" | sudo tee -a /etc/systemd/system/systemd
 #echo -e "[Service]\nPrivateMounts=no" | sudo tee -a /etc/systemd/system/systemd-udevd.service.d/private_mounts.conf
 
 # setup udev to oblige handling input/output mounting
-echo 'SUBSYSTEM=="block", ENV{ID_PATH}=="pci-0000:00:17.0-ata-3", ACTION=="change", RUN+="/usr/ripx/drive_change.sh"' | sudo tee -a /etc/udev/rules.d/autodvd.rules
+echo 'SUBSYSTEM=="block", ENV{ID_PATH}=="pci-0000:00:17.0-ata-3", ACTION=="change", RUN+="/opt/dvdrippx/drive_change.sh"' | sudo tee -a /etc/udev/rules.d/autodvd.rules
 
 # TODO install handbrake-cli
 sudo apt-get install -y libass-dev libbz2-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libjansson-dev liblzma-dev libmp3lame-dev libogg-dev libopus-dev libsamplerate-dev libspeex-dev libtheora-dev libtool libtool-bin libvorbis-dev libx264-dev libxml2-dev m4 nasm patch python yasm zlib1g-dev

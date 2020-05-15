@@ -8,7 +8,7 @@ DVD_MOUNT=/mnt/dvd
 		mkdir -p $DVD_MOUNT
 		mount -t $ID_FS_TYPE -o ro,users $DEVNAME $DVD_MOUNT
 		# note: nohup does not work in this context
-         echo "/usr/bin/php /usr/ripx/scripts/extract.php >> /var/log/dvdrippx/dvdrip.log && eject" | at now
+         echo "/usr/bin/php /opt/dvdrippx/scripts/extract.php >> /var/log/dvdrippx/dvdrip.log && eject" | at now
 	else
 		if grep -q $DVD_MOUNT /proc/mounts ; then
 			umount -l $DVD_MOUNT
