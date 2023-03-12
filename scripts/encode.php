@@ -12,13 +12,13 @@ try {
     echo '*** Starting RIPP-X Encoder at ', date('Y-m-d H:i:s'), PHP_EOL;
     $start_time = time();
 
-    $processing_files_count = Handbrake::getProcessingFiles();
+    $processing_files = Handbrake::getProcessingFiles();
     $processed_files = [];
 
     $mkv_files = Handbrake::getMkvFiles(RIPX_MKV_OUTPUT_DIR);
 
     foreach ($mkv_files as $mkv_file) {
-        if (($processing_files_count + count($processed_files)) >= RIPX_ENCODE_FILES_MAX) {
+        if ((count($processed_files) + count($processing_files)) >= RIPX_ENCODE_FILES_MAX) {
             break;
         }
 

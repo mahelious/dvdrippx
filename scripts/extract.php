@@ -11,19 +11,19 @@ $exit_code = 0;
 $start_time = time();
 
 try {
-	$output_dir = verify_path(RIPX_MKV_OUTPUT_DIR);
+    $output_dir = verify_path(RIPX_MKV_OUTPUT_DIR);
     $make_mkv = new MakeMKV();
     $make_mkv->extract($output_dir);
     // verify results
-	$dirscan = scandir($output_dir);
-	if ($dirscan === false) {
-         throw new CliException("$output_dir could not be verified.", 16);
-	} else {
-		echo count(array_diff($dirscan, ['.', '..'])), ' files written to ', $output_dir, PHP_EOL;
-	}
+    $dirscan = scandir($output_dir);
+    if ($dirscan === false) {
+        throw new CliException("$output_dir could not be verified.", 16);
+    } else {
+        echo count(array_diff($dirscan, ['.', '..'])), ' files written to ', $output_dir, PHP_EOL;
+    }
 } catch(CliException $e) {
     echo 'Error: ', $e->getMessage(), PHP_EOL;
-	$exit_code = $e->getCode();
+    $exit_code = $e->getCode();
 } catch (Exception $e) {
     echo 'Error: ', $e->getMessage(), '(', $e->getCode(), ')', PHP_EOL;
     $exit_code = 1;

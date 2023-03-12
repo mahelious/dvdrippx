@@ -60,8 +60,8 @@ class MakeMKV
     {
         $drive_id = $this->source_device['index'];
         $drive_name = $this->source_device['label'];
-        printf('Ready to extract disc:%s "%s"' . PHP_EOL, $drive_id, $drive_name);
-        $disc_dir = verify_path($dir_out . DS . $drive_name . '_' . date('YmdHi'));
+	$disc_dir = verify_path($dir_out . DS . $drive_name . '_' . date('YmdHi'));
+	printf('Ready to extract disc:%s "%s to %s"' . PHP_EOL, $drive_id, $drive_name, $disc_dir);
         exec(sprintf('makemkvcon mkv disc:%d all %s', $drive_id, $disc_dir . DS), $sys_out, $sys_result);
         if ($sys_result !== 0) {
             throw new CliException("Failed to extract disc: $drive_id \"$drive_name\" to $disc_dir", $sys_result);
