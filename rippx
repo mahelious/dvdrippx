@@ -1,0 +1,127 @@
+#!/usr/bin/php -d memory_limit=512M
+<?php
+
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'bootstrap.php');
+require_once(PROJECT_DIR . 'lib' . DS . 'MakeMKV.php');
+require_once(PROJECT_DIR . 'lib' . DS . 'Handbrake.php');
+
+$project = json_decode(file_get_contents('project.json'));
+
+define('PROJECT_NAME', $project->name);
+define('PROJECT_VER', $project->version);
+
+define('ARG_METHOD_EXTRACT',    'extract');
+define('ARG_METHOD_ENCODE',     'encode');
+
+// pull requested method from command-line arguments
+$req_method = strtolower($argv[1] ?? 'noop');
+
+// show help verbage when requested method is unknown
+if (!in_array($req_method, [ARG_METHOD_EXTRACT, ARG_METHOD_ENCODE])) {
+    _method_help();
+    exit(ERRCODE_BOOT_NOMETHOD);
+}
+
+// validate subdirectories
+try {
+    verify_path(RIPPX_DIR_LOGS);
+    verify_path(RIPPX_DIR_PROCESSING);
+} catch (CliException $ex) {
+    echo 'Error initializing subdirectories: ', $e->getMessage(), PHP_EOL;
+    exit($ex->getCode());
+}
+
+$start_time = time();
+$exit_code = 0;
+
+echo '*** Started ', PROJECT_NAME, " $req_method at ", date('Y-m-d H:i:s'), PHP_EOL;
+
+try {
+    if ($req_method === ARG_METHOD_EXTRACT) {
+        _method_extract();
+    } else
+    if ($req_method === ARG_METHOD_ENCODE) {
+        $preset = find_opt(['-p', '--preset'], $argv);
+        _method_encode($preset);
+    } else {
+        echo "Initiating $req_method...wait, what? How did you do that?";
+    }
+} catch(CliException $e) {
+    echo 'Error: ', $e->getMessage(), PHP_EOL;
+    $exit_code = $e->getCode();
+} catch (Exception $e) {
+    echo 'Error: ', $e->getMessage(), '(', $e->getCode(), ')', PHP_EOL;
+    $exit_code = 1;
+}
+
+echo sprintf("*** %s : %s finished at %s in %s seconds",
+    PROJECT_NAME, $req_method, date('Y-m-d H:i:s'), time() - $start_time), PHP_EOL;
+
+exit($exit_code);
+
+function _method_extract() {
+    verify_path(RIPPX_DIR_OUTPUT_EXTRACT);
+
+    MakeMKV::extract(RIPPX_DIR_OUTPUT_EXTRACT);
+
+    // verify results
+    $dirscan = scandir(RIPPX_DIR_OUTPUT_EXTRACT);
+    if ($dirscan === false) {
+        throw new CliException(sprintf('%s could not be verified.', RIPPX_DIR_OUTPUT_EXTRACT), ERRCODE_MAKEMKV_FAILEDVERIFY);
+    } else {
+        echo count(array_diff($dirscan, ['.', '..'])), ' files written to ', RIPPX_DIR_OUTPUT_EXTRACT, PHP_EOL;
+    }
+}
+
+function _method_encode($handbrake_preset) {
+    verify_path(RIPPX_DIR_OUTPUT_ENCODE);
+
+    if (!$handbrake_preset) {
+        // TODO - would like to validate whether the user-defined preset is valid
+        $handbrake_preset = PRESET_GENERAL_HQ_1080;
+    }
+
+    $processed_files = [];
+    $processing_files = Handbrake::getProcessingFiles();
+
+    foreach (Handbrake::getMkvFiles(RIPPX_DIR_OUTPUT_EXTRACT) as $mkv_file) {
+        if ((count($processed_files) + count($processing_files)) >= RIPPX_ENCODE_FILES_MAX) {
+            break;
+        }
+
+        $output_file = $mkv_file->encode($handbrake_preset);
+        if (!empty($output_file)) {
+            echo "$output_file saved.", PHP_EOL;
+            $processed_files[] = $output_file;
+        }
+    }
+
+    // TODO - provide compression report
+    //  ex. before 2.5 GB, after 400 MB
+
+    echo sprintf('Encoder processed %s files', (count($processed_files)) ?? 0), PHP_EOL; # ??
+}
+
+function _method_help() {
+    $script_name = basename(__FILE__);
+    $project_name = PROJECT_NAME;
+    $project_version = PROJECT_VER;
+
+    echo <<<HELPTEXT
+$project_name ($project_version): An unsophisticated video disc ripper for automation magic.
+Usage: $script_name [METHOD]... [OPTION]...
+Description: Automate extraction/encoding of a video disc
+
+Methods:
+- extract:  perform a raw rip of a video file, using MakeMKV, to a Matroska container
+- encode:   use Handbrake to encode a Matroska container to an MP4 container
+
+Options:
+  -h, --help        Print this helpful usage information
+  -p, --preset      Set the Handbrake preset selected for the encoding
+                    Defaults to 'HQ 1080p30 Surround'
+
+Source control: https://github.com/mahelious/dvdrippx
+
+HELPTEXT;
+}

@@ -1,1 +1,15 @@
 *.tar.gz
+composer.phar
+/vendor/
+
+# ignore project working directories
+logs/
+mkv/
+processing/
+output/
+
+# ignore ide settings
+/nbproject
+.idea/
+.idea_modules/
+
