@@ -5,9 +5,14 @@
  * @see https://www.makemkv.com/developers/usage.txt
  */
 
+// TODO - polluting the global constant space is gross, make these class constants
+
 define('DEVICE_INFO_DRIVE', 'DRV:');
 
-/* makemkv-oss-1.14.3/makemkvgui/inc/lgpl/apdefs.h
+define('RETURN_CODE_SUCCESS',   0);
+define('RETURN_CODE_ERR_MKVCON_NOKEY',     253);
+
+/* makemkv-oss-1.17.3/makemkvgui/inc/lgpl/apdefs.h
 static const unsigned int AP_DriveStateNoDrive=256;
 static const unsigned int AP_DriveStateUnmounting=257;
 static const unsigned int AP_DriveStateEmptyClosed=0;
@@ -22,7 +27,7 @@ define('DRIVESTATE_EMPTYOPEN',  1);
 define('DRIVESTATE_INSERTED',   2);
 define('DRIVESTATE_LOADING',    3);
 
-/* makemkv-oss-1.14.3/makemkvgui/inc/lgpl/apdefs.h
+/* makemkv-oss-1.17.3/makemkvgui/inc/lgpl/apdefs.h
  * note: this list appears to be incomplete
 static const unsigned int AP_DskFsFlagDvdFilesPresent=1;
 static const unsigned int AP_DskFsFlagHdvdFilesPresent=2;
@@ -37,48 +42,81 @@ define('DISC_FS_FLAG_AACS',      8);
 define('DISC_FS_FLAG_BDRE',     12);
 define('DISC_FS_FLAG_BDSVM',    16);
 
+define('ERRCODE_MAKEMKV_NOTFOUND',          20);
+define('ERRCODE_MAKEMKV_NODEVICEREADY',     21);
+define('ERRCODE_MAKEMKV_NOINFO',            22);
+define('ERRCODE_MAKEMKV_FAILEDDISCEXTRACT', 23);
+define('ERRCODE_MAKEMKV_FAILEDVERIFY',      24);
+define('ERRCODE_MAKEMKV_NOKEY',             29);
+
 class MakeMKV
 {
-    private $source_device;
-
-    public function __construct()
+    /**
+     * extract
+     *
+     * Perform an extraction of video files from available device
+     *
+     * @param   string  $dir_out
+     * @throws  CliException
+     */
+    public static function extract($dir_out)
     {
-        // verify that MakeMKV is available for the command-line
-        exec('command -v makemkvcon', $sys_out, $sys_result);
-        if ($sys_result !== 0) {
-            throw new CliException('makemkvcon could not be found', 1);
-        }
+        self::testInstallation();
 
         $devices = self::getDevices();
         if (empty($devices)) {
-            throw new CliException('No devices ready', 2);
+            throw new CliException('No devices ready', ERRCODE_MAKEMKV_NODEVICEREADY);
         }
-        $this->source_device = $devices[0];
-    }
 
-    public function extract($dir_out)
-    {
-        $drive_id = $this->source_device['index'];
-        $drive_name = $this->source_device['label'];
-	$disc_dir = verify_path($dir_out . DS . $drive_name . '_' . date('YmdHi'));
-	printf('Ready to extract disc:%s "%s to %s"' . PHP_EOL, $drive_id, $drive_name, $disc_dir);
+        $drive_id = $devices[0]['index'];
+        $drive_name = $devices[0]['label'];
+        $disc_dir = verify_path($dir_out . DS . $drive_name . '_' . date('YmdHi'));
+        printf('Ready to extract disc:%s "%s to %s"' . PHP_EOL, $drive_id, $drive_name, $disc_dir);
         exec(sprintf('makemkvcon mkv disc:%d all %s', $drive_id, $disc_dir . DS), $sys_out, $sys_result);
-        if ($sys_result !== 0) {
-            throw new CliException("Failed to extract disc: $drive_id \"$drive_name\" to $disc_dir", $sys_result);
+        if ($sys_result !== RETURN_CODE_SUCCESS) {
+            throw new CliException("Failed to extract disc: $drive_id \"$drive_name\" to $disc_dir ($sys_result)", ERRCODE_MAKEMKV_FAILEDDISCEXTRACT);
         }
         // last line reports success and title count
+        // TODO : an echo? in a class-method? ewww...
         echo end($sys_out), PHP_EOL;
     }
 
+    /**
+     * testInstallation
+     *
+     * Verify that MakeMKV is installed and available from the command-line
+     *
+     * @return voic
+     */
+    private static function testInstallation()
+    {
+        exec('command -v makemkvcon', $sys_out, $sys_result);
+        if ($sys_result !== RETURN_CODE_SUCCESS) {
+            throw new CliException('makemkvcon could not be found', ERRCODE_MAKEMKV_NOTFOUND);
+        }
+    }
+
+    /**
+     * getDevices
+     *
+     * Get list of available devices from makemkvcon
+     *
+     * @return  array   $devices    Array containing the device descriptions
+     *      $devices = [
+     *          'index' =>  (string) drive index
+     *          'label' =>  (string) disc name
+     *      ]
+     * @throws  CliException
+     */
     private static function getDevices()
     {
         // get all available drives
         exec('makemkvcon -r --cache=1 info disc:9999', $sys_out, $sys_result);
-        if ($sys_result === 253) {
-            throw new CliException('The activation key is invalid, please verify you have the newest key in ~/.MakeMKV/settings.conf', 999);
+        if ($sys_result === RETURN_CODE_ERR_MKVCON_NOKEY) {
+            throw new CliException('The activation key is invalid, please verify you have the newest key in ~/.MakeMKV/settings.conf', ERRCODE_MAKEMKV_NOKEY);
         }
-        if ($sys_result !== 0) {
-            throw new CliException('Could not get list of devices', 128);
+        if ($sys_result !== RETURN_CODE_SUCCESS) {
+            throw new CliException('Could not get list of devices', ERRCODE_MAKEMKV_NOINFO);
         }
 
         $active_devices = [];
@@ -92,9 +130,9 @@ class MakeMKV
             /*
              * per https://www.makemkv.com/developers/usage.txt
              * Drive scan message format
-             * DRV:index,visible,enabled,flags,drive name,disc name
+             *  DRV:index,visible,enabled,flags,drive name,disc name
              * jk;lol
-             * DRV:index,state,nooneknows,flag,drive name,disc name,drive source
+             *  DRV:index,drive state,unknown,flags,drive name,disc name,drive source
              */
             list($index, $drive_state, , $fs_flag, $name, $label, $drive) = $device_info;
 

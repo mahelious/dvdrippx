@@ -76,3 +76,7 @@ echo 'SUBSYSTEM=="block", ENV{ID_PATH}=="pci-0000:00:17.0-ata-3", ACTION=="chang
 #//192.168.1.11/music-matthew	/media/freenas/music/matthew	cifs	auto,noexec,credentials=/root/.cifs_alepides_matthew,uid=1000	0	0
 #//192.168.1.11/music-tamara	/media/freenas/music/tamara	cifs    auto,noexec,credentials=/root/.cifs_alepides_matthew,uid=1000   0       0
 #//192.168.1.11/music-harrison	/media/freenas/music/harrison	cifs	auto,noexec,credentials=/root/.cifs_alepides_matthew,uid=1000	0	0
+
+
+# make the ripper command executable
+sudo chmod +x /opt/dvdrippx/rippx

@@ -1,5 +1,7 @@
 <?php
 
+// TODO - polluting the global constants is gross, make presets class-constants
+
 // a selection of HandBrake v.1.2.2 presets
 define('PRESET_GENERAL_VERYFAST_1080',  'Very Fast 1080p30');
 define('PRESET_GENERAL_VERYFAST_720',   'Very Fast 720p30');
@@ -11,6 +13,11 @@ define('PRESET_GENERAL_HQ_1080',        'HQ 1080p30 Surround');
 define('PRESET_GENERAL_HQ_720',         'HQ 720p30 Surround');
 define('PRESET_GENERAL_SUPERHQ_1080',   'Super HQ 1080p30 Surround');
 define('PRESET_GENERAL_SUPERHQ_720',    'Super HQ 720p30 Surround');
+
+define('ERRCODE_HANDBRAKE_NOOPEN',      31);
+define('ERRCODE_HANDBRAKE_LOCKSET',     35);
+define('ERRCODE_HANDBRAKE_LOCKUNSET',   36);
+define('ERRCODE_HANDBRAKE_LOCKUNDO',    37);
 
 class Handbrake
 {
@@ -26,7 +33,7 @@ class Handbrake
     public function encode($encode_preset = PRESET_GENERAL_FAST_1080)
     {
         if (!is_readable($this->mkv_file)) {
-            throw new CliException("{$this->mkv_file} could not be opened, skipping");
+            throw new CliException("{$this->mkv_file} could not be opened, skipping", ERRCODE_HANDBRAKE_NOOPEN);
         }
 
         // move the file to the processing directory
@@ -53,12 +60,9 @@ class Handbrake
 
     private function addProcessingLock()
     {
-        if (!is_writable(RIPX_PROCESSING_DIR)) {
-            throw new CliException('Check that ' . RIPX_PROCESSING_DIR . ' exists and can be written to.', 16);
-        }
-        $lock_file = RIPX_PROCESSING_DIR . DS . date('YmdHi') . '_' . basename($this->mkv_file);
+        $lock_file = RIPPX_DIR_PROCESSING . DS . date('YmdHi') . '_' . basename($this->mkv_file);
         if (!rename($this->mkv_file, $lock_file)) {
-            throw new CliException(sprintf("Could not move %s into %s", $this->mkv_file, RIPX_PROCESSING_DIR), 32);
+            throw new CliException(sprintf("Could not move %s into %s", $this->mkv_file, RIPPX_DIR_PROCESSING), ERRCODE_HANDBRAKE_LOCKSET);
         }
         $this->lock_file = $this->mkv_file;
         $this->mkv_file = $lock_file;
@@ -74,7 +78,7 @@ class Handbrake
             $this->lock_file = null;
             $this->file_locked = false;
             if (!unlink($lock_file)) {
-                throw new CliException("$lock_file file could not be removed", 64);
+                throw new CliException("$lock_file file could not be removed", ERRCODE_HANDBRAKE_LOCKUNSET);
             }
         }
     }
@@ -87,7 +91,7 @@ class Handbrake
             $this->lock_file = null;
             $this->file_locked = false;
             if (!rename($lock_file, $this->mkv_file)) {
-                throw new CliException("Could not restore {$lock_file} to {$this->mkv_file}, halting", 4);
+                throw new CliException("Could not restore {$lock_file} to {$this->mkv_file}, halting", ERRCODE_HANDBRAKE_LOCKUNDO);
             }
         }
     }
@@ -132,7 +136,13 @@ class Handbrake
 
     public static function getProcessingFiles()
     {
-        return (is_readable(RIPX_PROCESSING_DIR)) ? array_diff(scandir(RIPX_PROCESSING_DIR), ['.', '..']) : [];
+        return array_diff(scandir(RIPPX_DIR_PROCESSING), ['.', '..']);
+    }
+
+    private static function getOutput($input_file)
+    {
+        $filename_parts = explode(DS, $input_file);
+        return verify_path(RIPPX_DIR_OUTPUT_ENCODE . DS . $filename_parts[count($filename_parts)-2]);
     }
 
     private static function getMp4Output($input_mkv_file)
@@ -140,19 +150,5 @@ class Handbrake
         $output_dir = self::getOutput($input_mkv_file);
         $output_file = strstr(basename($input_mkv_file), '.mkv', true) . '.mp4';
         return $output_dir . DS . $output_file;
-    }
-
-    private static function getOutput($input_file)
-    {
-        $filename_parts = explode(DS, $input_file);
-        $output_dir = RIPX_RIP_OUTPUT_DIR . DS . $filename_parts[count($filename_parts)-2];
-        if (!is_dir($output_dir)) {
-            if (!mkdir($output_dir)) {
-                throw new CliException("Could not initialize output directory: $output_dir", 8);
-            }
-            // change permissions independently to avoid having to fuss with the umask
-            chmod($output_dir, 0775);
-        }
-        return $output_dir;
     }
 }
