@@ -76,11 +76,6 @@ function _method_extract() {
 function _method_encode($handbrake_preset) {
     verify_path(RIPPX_DIR_OUTPUT_ENCODE);
 
-    if (!$handbrake_preset) {
-        // TODO - would like to validate whether the user-defined preset is valid
-        $handbrake_preset = PRESET_GENERAL_HQ_1080;
-    }
-
     $processed_files = [];
     $processing_files = Handbrake::getProcessingFiles();
 
@@ -88,18 +83,21 @@ function _method_encode($handbrake_preset) {
         if ((count($processed_files) + count($processing_files)) >= RIPPX_ENCODE_FILES_MAX) {
             break;
         }
-
-        $output_file = $mkv_file->encode($handbrake_preset);
+        $mkv_file->setPreset($handbrake_preset);
+        $output_file = $mkv_file->encode();
         if (!empty($output_file)) {
             echo "$output_file saved.", PHP_EOL;
             $processed_files[] = $output_file;
         }
+        $src_filesize = $mkv_file->getSourceFileSize();
+        $out_filesize = $mkv_file->getOutputFileSize();
+        echo sprintf("Reduced size from %sMB to %sMB (compression ratio %s%%)",
+            number_format($src_filesize, 2),
+            number_format($out_filesize, 2),
+            number_format(100 - ($out_filesize / $src_filesize * 100), 4)
+        ), PHP_EOL;
     }
-
-    // TODO - provide compression report
-    //  ex. before 2.5 GB, after 400 MB
-
-    echo sprintf('Encoder processed %s files', (count($processed_files)) ?? 0), PHP_EOL; # ??
+    echo sprintf('Encoder processed %s files', (count($processed_files)) ?? 0), PHP_EOL;
 }
 
 function _method_help() {
