@@ -24,6 +24,9 @@ echo -e "/var/log/dvdrippx/*log {\n\tdaily\n\trotate 7\n\tnocompress\n\tcreate\n
 #TODO install makemkv
 # note: the key/secret must be copied into ~/.MakeMKV/settings.conf of whoever will run the script
 
+# provide mkvinfo
+sudo apt-get install -y mkvtoolnix
+
 # install ccextractor as a supplement for makemkv
 sudo apt-get install -y tesseract-ocr libtesseract-dev libcurl4-gnutls-dev libleptonica-dev
 wget -O Downloads/ccextractor.zip https://github.com/CCExtractor/ccextractor/archive/v0.94.zip
