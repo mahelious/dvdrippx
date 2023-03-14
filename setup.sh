@@ -5,7 +5,7 @@
 
 sudo apt-get -qq update --fix-missing \
   && sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-  && sudo apt-get install -y at curl flatpak git php-cli unzip
+  && sudo apt-get install -y at curl flatpak git mkvtoolnix php-cli unzip
 
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta > /dev/null 2>&1 \
   && sudo apt-get -qq update \
