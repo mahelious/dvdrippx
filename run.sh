@@ -41,7 +41,7 @@ sed -i "s/app_ccextractor = /#app_ccextractor = /" ~/.MakeMKV/settings.conf
 echo 'app_ccextractor = "/usr/bin/mmccextr"' >> ~/.MakeMKV/settings.conf
 
 # install PHP 8.1
-sudo apt-get install -y php-cli
+sudo apt-get install -y php-cli php-curl
 
 # configure udev to mount in the real space, instead of the default behavior of mounting in a private space like an asshole
 sudo mkdir -p /etc/systemd/system/systemd-udevd.service.d
