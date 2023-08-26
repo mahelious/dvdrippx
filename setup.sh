@@ -53,8 +53,24 @@ sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flat
 ## note this works in udev v237; starting in v239 instead run
 ##echo -e "[Service]\nPrivateMounts=no" | sudo tee -a /etc/systemd/system/systemd-udevd.service.d/private_mounts.conf
 #
+# Get machine address of drive
+#
+# sudo lshw -c disk
+#   *-cdrom
+  #       description: DVD-RAM writer
+  #       product: BDDVDRW UH12NS29
+  #       vendor: HL-DT-ST
+  #       physical id: 0.0.0
+  #       bus info: scsi@2:0.0.0
+  #       logical name: /dev/cdrom
+  #       logical name: /dev/sr0
+# then use udevadm to capture the ID_PATH
+# $ sudo udevadm info -q all -n /dev/cdrom | grep "ID_PATH="
+# E: ID_PATH=pci-0000:07:00.0-ata-2.0
+#
 ## setup udev to oblige handling input/output mounting
-#echo 'SUBSYSTEM=="block", ENV{ID_PATH}=="pci-0000:00:17.0-ata-3", ACTION=="change", RUN+="/opt/dvdrippx/drive_change.sh"' | sudo tee -a /etc/udev/rules.d/autodvd.rules
+# $ export DRIVE_ID_PATH="pci-0000:07:00.0-ata-2.0"
+# $ echo 'SUBSYSTEM=="block", ENV{ID_PATH}==$DRIVE_ID_PATH, ACTION=="change", RUN+="/opt/dvdrippx/drive_change.sh"' | sudo tee -a /etc/udev/rules.d/80-autodvd.rules
 #
 ##$ sudo crontab -l
 ##*/30 * * * * php /opt/dvdrippx/scripts/encode.php >> /opt/dvdrippx/logs/dvdrip.log 2>&1
