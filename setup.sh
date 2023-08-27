@@ -7,7 +7,7 @@ APP_DIR=$(dirname -- "$(readlink -f -- "$0";)")
 
 sudo apt-get -qq update --fix-missing \
   && sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-  && sudo apt-get install -y at curl flatpak git mkvtoolnix php-cli unzip
+  && sudo apt-get install -y at abcde curl flac flatpak git mkvtoolnix php-cli unzip
 
 # install pup to scrape the makemkv beta key
 wget -O pup.zip https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip \

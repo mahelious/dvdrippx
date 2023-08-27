@@ -3,8 +3,9 @@
 # note: udev runs this script as root, uncomment following line to verify
 #echo "active user: `whoami`"
 
+APP_DIR=$(dirname -- "$(readlink -f -- "$0";)")
+LOGFILE=$APP_DIR/logs/dvdrip.log
 DVD_MOUNT=/mnt/dvd
-LOGFILE=/var/log/dvdrippx/dvdrip.log
 
 #sudo udevadm info --root --name=/dev/sr0
 echo "ID_FS_TYPE=$ID_FS_TYPE" >> $LOGFILE
@@ -28,15 +29,15 @@ echo "ID_CDROM_MEDIA_DVD=$ID_CDROM_MEDIA_DVD" >> $LOGFILE
         if mountpoint -q $DVD_MOUNT; then
             echo "$DVD_MOUNT already mounted, skipping"
         else
-          #echo "Mounting device $DEVNAME to $DVD_MOUNT"
           systemd-mount --no-block --automount=yes --collect $DEVNAME $DVD_MOUNT
           echo "Device $DEVNAME mounted at $DVD_MOUNT"
-          if [ $ID_CDROM_MEDIA_BD -eq 1 ] || [ $ID_CDROM_MEDIA_DVD -eq 1 ]; then
+          if [[ ( -v $ID_CDROM_MEDIA_BD && $ID_CDROM_MEDIA_BD -eq 1 ) \
+            || ( -v $ID_CDROM_MEDIA_DVD && $ID_CDROM_MEDIA_DVD -eq 1 ) ]]; then
             echo "Launching video/audio extractor"
-            echo "/usr/bin/php /opt/dvdrippx/scripts/extract.php >> $LOGFILE && eject" | at now
+            echo "/usr/bin/php $APP_DIR/scripts/extract.php >> $LOGFILE && eject" | at now
           elif [ $ID_CDROM_MEDIA_CD -eq 1 ]; then
             echo "Launching audio-only extractor"
-            # TODO ...
+            echo "/usr/bin/abcde -c $APP_DIR/config/abcde.conf >> $LOGFILE" | at now
           fi
         fi
     fi
