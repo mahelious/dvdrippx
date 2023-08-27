@@ -37,14 +37,16 @@ $exit_code = 0;
 echo '*** Started ', PROJECT_NAME, " $req_method at ", date('Y-m-d H:i:s'), PHP_EOL;
 
 try {
-    if ($req_method === ARG_METHOD_EXTRACT) {
-        _method_extract();
-    } else
-    if ($req_method === ARG_METHOD_ENCODE) {
-        $preset = find_opt(['-p', '--preset'], $argv);
-        _method_encode($preset);
-    } else {
-        echo "Initiating $req_method...wait, what? How did you do that?";
+    switch ($req_method) {
+        case ARG_METHOD_EXTRACT:
+            _method_extract();
+            break;
+        case ARG_METHOD_ENCODE:
+             $preset = find_opt(['-p', '--preset'], $argv);
+             _method_encode($preset);
+             break;
+         default:
+            echo "Initiating $req_method...wait, what? How did you do that?";
     }
 } catch(CliException $e) {
     echo 'Error: ', $e->getMessage(), PHP_EOL;

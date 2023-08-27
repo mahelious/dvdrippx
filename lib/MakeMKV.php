@@ -86,7 +86,7 @@ class MakeMKV
      *
      * Verify that MakeMKV is installed and available from the command-line
      *
-     * @return voic
+     * @return void
      */
     private static function testInstallation()
     {
